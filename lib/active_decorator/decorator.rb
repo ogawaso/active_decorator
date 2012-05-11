@@ -29,6 +29,15 @@ module ActiveDecorator
         d = decorator_for obj.class
         return obj unless d
         obj.extend d unless obj.is_a? d
+        belongs_to_column_names = obj.reflections.select{|k, v| v.macro == :belongs_to}.map{|h, v| v.name}
+        belongs_to_column_names.each do |c|
+          belongs_to_obj = obj.send(c)
+          if belongs_to_obj
+            d = decorator_for belongs_to_obj.class
+            next unless d
+            belongs_to_obj.extend d unless belongs_to_obj.is_a? d
+          end
+        end
       end
     end
 
